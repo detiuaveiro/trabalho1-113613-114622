@@ -10,11 +10,12 @@
 /// 2013, 2023
 
 // Student authors (fill in below):
-// NMec:  Name:
+// NMec: 113613 Name: André Vasques Dora 
+// NMec: 114622 Name: António Fernandes Alberto
 // 
 // 
 // 
-// Date:
+// Date: 
 //
 
 #include "image8bit.h"
@@ -172,6 +173,39 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
   assert (height >= 0);
   assert (0 < maxval && maxval <= PixMax);
   // Insert your code here!
+
+  // Allocate memory for the image structure
+  // malloc para a imagem
+  Image img = (Image)malloc(sizeof(struct image));
+  if (img == NULL) {
+    errCause = "Memory allocation failed for image structure";
+    return NULL;
+  }
+
+  // dar set às propriedades da imagem
+  img->width = width;
+  img->height = height;
+  img->maxval = maxval;
+
+  // calcular o tamanho do array para os pixeis
+  size_t pixel_size = (size_t)width * (size_t)height;
+
+  // malloc para os dados dos pixeis
+  img->pixel = (uint8*)malloc(pixel_size * sizeof(uint8));
+  if (img->pixel == NULL) {
+    errCause = "Memory allocation failed for pixel data";
+    free(img); // Clean up the previously allocated image structure // limpar a estrutura da imagem q tava antes malloc
+    return NULL;
+  }
+
+  // Initialize the pixel data to zero (black)
+  // meter os dados dos pixeis a 0 (preto)
+  for (size_t i = 0; i < pixel_size; i++) {
+    img->pixel[i] = 0;
+  }
+
+  // retornar a imagem toda slayada auauuauauauauau
+  return img;
 }
 
 /// Destroy the image pointed to by (*imgp).
@@ -182,6 +216,18 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
 void ImageDestroy(Image* imgp) { ///
   assert (imgp != NULL);
   // Insert your code here!
+  
+  // Free the pixel data
+  // dar free aos dados do pixel
+  free((*imgp)->pixel);
+
+  // Free the image structure
+  // dar free à estrutura da imagem
+  free(*imgp);
+
+  // Set the image pointer to NULL
+  // colocar o ponteiro da imagem como NULL
+  *imgp = NULL;
 }
 
 
