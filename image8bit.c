@@ -207,7 +207,7 @@ Image ImageCreate(int width, int height, uint8 maxval)
   }
   PIXMEM += (unsigned long)pixel_size; // count pixel memory accesses
 
-  // retornar a imagem toda slayada auauuauauauauau
+  // retornar a imagem 
   return img;
 }
 
@@ -521,6 +521,18 @@ Image ImageRotate(Image img)
 { ///
   assert(img != NULL);
   // Insert your code here!
+  Image newImg = ImageCreate(img->height, img->width, img->maxval);
+
+  // sentido contrario aos ponteiros do relogio 
+  for (int y = 0; y < img->height; y++)
+  {
+    for (int x = 0; x < img->width; x++){
+      uint8 cor = ImageGetPixel(img, x, y);
+      ImageSetPixel(newImg, y, img->width - x - 1, cor);
+    }
+  }
+
+  return newImg;
 }
 
 /// Mirror an image = flip left-right.
