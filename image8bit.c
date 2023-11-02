@@ -518,9 +518,10 @@ void ImageBrighten(Image img, double factor)
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img)
-{ ///
+{ /// 
   assert(img != NULL);
   // Insert your code here!
+
 }
 
 /// Mirror an image = flip left-right.
