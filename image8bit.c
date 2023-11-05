@@ -207,7 +207,7 @@ Image ImageCreate(int width, int height, uint8 maxval)
   }
   PIXMEM += (unsigned long)pixel_size; // count pixel memory accesses
 
-  // retornar a imagem 
+  // retornar a imagem
   return img;
 }
 
@@ -447,7 +447,7 @@ void ImageNegative(Image img)
   int size = img->width * img->height;
   for (int i = 0; i < size; i++)
   {
-    img->pixel[i] = PixMax - img->pixel[i];
+    img->pixel[i] = PixMax - img->pixel[i]; // inverter o nivel de cinzento (255 - nivel de cinzento)
   }
 }
 
@@ -461,13 +461,13 @@ void ImageThreshold(Image img, uint8 thr)
   int size = img->width * img->height;
   for (int i; i < size; i++)
   {
-    if (img->pixel[i] < thr)
+    if (img->pixel[i] < thr) // se o nivel de cinzento for menor que o threshold
     {
-      img->pixel[i] = 0;
+      img->pixel[i] = 0; // torna o pixel preto
     }
-    else
+    else // se o nivel de cinzento for maior ou igual ao threshold
     {
-      img->pixel[i] = img->maxval;
+      img->pixel[i] = img->maxval; // torna o pixel branco
     }
   }
 }
@@ -485,13 +485,13 @@ void ImageBrighten(Image img, double factor)
   int size = img->width * img->height;
   for (int i = 0; i < size; i++)
   {
-    if (img->pixel[i] * factor > img->maxval)
+    if (img->pixel[i] * factor > img->maxval) // se o nivel de cinzento for maior que o maxval
     {
-      img->pixel[i] = img->maxval;
+      img->pixel[i] = img->maxval; // torna o pixel branco
     }
-    else
+    else if (img->pixel[i] * factor < img->maxval) // se o nivel de cinzento for menor que o maxval
     {
-      img->pixel[i] = img->pixel[i] * factor;
+      img->pixel[i] = img->pixel[i] * factor; // multiplica o nivel de cinzento pelo factor
     }
   }
 }
@@ -518,15 +518,16 @@ void ImageBrighten(Image img, double factor)
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img)
-{ /// 
+{ ///
   assert(img != NULL);
   // Insert your code here!
   Image newImg = ImageCreate(img->height, img->width, img->maxval);
 
-  // sentido contrario aos ponteiros do relogio 
+  // sentido contrario aos ponteiros do relogio
   for (int y = 0; y < img->height; y++)
   {
-    for (int x = 0; x < img->width; x++){
+    for (int x = 0; x < img->width; x++)
+    {
       uint8 cor = ImageGetPixel(img, x, y);
       ImageSetPixel(newImg, y, img->width - x - 1, cor);
     }
@@ -549,11 +550,13 @@ Image ImageMirror(Image img)
 
   int size = img->height * img->width;
 
-  Image imgMirrored = ImageCreate(img->width, img->height, img->maxval);
+  Image imgMirrored = ImageCreate(img->width, img->height, img->maxval); // criar nova imagem
 
   for (int i = 0; i <= size; i++)
   {
-    imgMirrored->pixel[i] = img->pixel[img->width - 1];
+    imgMirrored->pixel[i] = img->pixel[img->width - 1]; // considerar o pixel da nova imagem de posição i
+                                                        // e configurá-lo com o nivel de cinzento do pixel
+                                                        // da imagem original de posição (largura da imagem original - i)
   }
 
   return imgMirrored;
