@@ -378,8 +378,8 @@ int ImageValidPos(Image img, int x, int y)
 
 /// Check if rectangular area (x,y,w,h) is completely inside img.
 int ImageValidRect(Image img, int x, int y, int w, int h)
-{ ///
-  assert(img != NULL);  // img must be a valid image
+{                      ///
+  assert(img != NULL); // img must be a valid image
   // Insert your code here!
 
   int cond1 = 0 <= x && x < img->width;
@@ -578,7 +578,21 @@ Image ImageCrop(Image img, int x, int y, int w, int h)
 { ///
   assert(img != NULL);
   assert(ImageValidRect(img, x, y, w, h));
+
   // Insert your code here!
+  Image imgCropped = ImageCreate(w, h, img->maxval);
+
+  for (int i = 0; i < h; i++)
+  {
+    for (int j = 0; j < w; j++)
+    {
+
+      uint8 pixel = ImageGetPixel(img, x + j, y + i);
+      ImageSetPixel(imgCropped, j, i, pixel);
+    }
+  }
+
+  return imgCropped;
 }
 
 /// Operations on two images
@@ -593,6 +607,21 @@ void ImagePaste(Image img1, int x, int y, Image img2)
   assert(img2 != NULL);
   assert(ImageValidRect(img1, x, y, img2->width, img2->height));
   // Insert your code here!
+
+  for (int i = 0; i < img2->height; i++) {
+        for (int j = 0; j < img2->width; j++) {
+            int destX = x + j;
+            int destY = y + i;
+
+            // Calculate the index in the data array for both images
+            int index1 = (destY * img1->width + destX); 
+            int index2 = (i * img2->width + j) ;
+
+            // Copy the pixel from img2 to img1
+            img1->pixel[index1] = img2->pixel[index2]; 
+            
+        }
+    }
 }
 
 /// Blend an image into a larger image.
