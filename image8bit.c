@@ -580,15 +580,17 @@ Image ImageCrop(Image img, int x, int y, int w, int h)
   assert(ImageValidRect(img, x, y, w, h));
 
   // Insert your code here!
-  Image imgCropped = ImageCreate(w, h, img->maxval);
+  Image imgCropped = ImageCreate(w, h, img->maxval); // criar nova imagem com as dimensões passadas no argumento
 
   for (int i = 0; i < h; i++)
   {
-    for (int j = 0; j < w; j++)
+    for (int j = 0; j < w; j++)                       // percorrer valores de x (0 a w) e y(0 a h)
     {
 
-      uint8 pixel = ImageGetPixel(img, x + j, y + i);
-      ImageSetPixel(imgCropped, j, i, pixel);
+      uint8 pixel = ImageGetPixel(img, x + j, y + i); // obter o nivel de cinzento do pixel da imagem original
+                                                      // de posição (x + j, y + i)
+      ImageSetPixel(imgCropped, j, i, pixel);         // configurar o pixel da nova imagem de posição (j, i)
+                                                      // com o nivel de cinzento do pixel obtido na linha anterior
     }
   }
 
@@ -608,20 +610,20 @@ void ImagePaste(Image img1, int x, int y, Image img2)
   assert(ImageValidRect(img1, x, y, img2->width, img2->height));
   // Insert your code here!
 
-  for (int i = 0; i < img2->height; i++) {
-        for (int j = 0; j < img2->width; j++) {
-            int destX = x + j;
-            int destY = y + i;
+  for (int i = 0; i < img2->height; i++)           // percorrer valores de x (0 a altura de img2)
+  {                                                
+    for (int j = 0; j < img2->width; j++)          // e y (0 a largura de img2)
+    {
+      int destX = x + j;                          // calcular a posição do pixel da img2 na imagem original
+      int destY = y + i;                          // (x + j, y + i)
 
-            // Calculate the index in the data array for both images
-            int index1 = (destY * img1->width + destX); 
-            int index2 = (i * img2->width + j) ;
+      int index1 = (destY * img1->width + destX); // calcular o index da posição (x+j, y+i) da imagem original
+      int index2 = (i * img2->width + j);         // calcular o index da posição (j, i) da imagem img2
 
-            // Copy the pixel from img2 to img1
-            img1->pixel[index1] = img2->pixel[index2]; 
-            
-        }
+      img1->pixel[index1] = img2->pixel[index2];  // copiar o nivel de cinzento do pixel da imagem img2
+                                                  // para o pixel da imagem original
     }
+  }
 }
 
 /// Blend an image into a larger image.
@@ -636,6 +638,19 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha)
   assert(img2 != NULL);
   assert(ImageValidRect(img1, x, y, img2->width, img2->height));
   // Insert your code here!
+  int img1_alpha = 1.0 - alpha; 
+  for (int i = 0; i < img2->height; i++) {
+    for (int j = 0; j < img2->width; j++) {
+      uint8 img1Pixel = ImageGetPixel(img1, x + j, y + i); 
+      uint8 img2Pixel = ImageGetPixel(img2, j, i); 
+
+      int blended_pixel = (int)(img1_alpha * img1Pixel + alpha * img2Pixel);
+
+      ImageSetPixel(img1, x + j, y + i, blended_pixel);
+    }
+  }
+
+
 }
 
 /// Compare an image to a subimage of a larger image.
@@ -647,6 +662,20 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2)
   assert(img2 != NULL);
   assert(ImageValidPos(img1, x, y));
   // Insert your code here!
+  // int size2 = img2->width * img2->height;
+  // int match = 0;
+  // while(match != size2){
+  //   for (int i = 0; i <= img2->height; i++){ 
+  //     for (int j = 0; j <= img2->width; j++){
+  //       for (int f = 0; f <= img1->height; f++){
+  //         for (int g = 0; g <= img1->width; g++){
+  //           if (ImageGetPixel(img1, x + j, y + i) == ImageGetPixel(img2, j, i))
+  //           {
+  //             match++;
+  //           }
+  //     }}
+  //   }}
+  // }
 }
 
 /// Locate a subimage inside another image.
