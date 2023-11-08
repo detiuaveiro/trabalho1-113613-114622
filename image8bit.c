@@ -638,13 +638,15 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha)
   assert(img2 != NULL);
   assert(ImageValidRect(img1, x, y, img2->width, img2->height));
   // Insert your code here!
-  int img1_alpha = 1.0 - alpha; 
-  for (int i = 0; i < img2->height; i++) {
-    for (int j = 0; j < img2->width; j++) {
+  double alphaImg1 = 1.0 -alpha; //calcular o alpha da imagem 1 (1 - alpha)
+
+  for (int i = 0; i < img2->height; i++) {    // percorrer valores de y (0 a altura de img2)
+    for (int j = 0; j < img2->width; j++) {   // e x (0 a largura de img2)
+
       uint8 img1Pixel = ImageGetPixel(img1, x + j, y + i); 
       uint8 img2Pixel = ImageGetPixel(img2, j, i); 
 
-      int blended_pixel = (int)(img1_alpha * img1Pixel + alpha * img2Pixel);
+      int blended_pixel = (int)( alphaImg1 * img1Pixel + (alpha * img2Pixel));
 
       ImageSetPixel(img1, x + j, y + i, blended_pixel);
     }
@@ -662,20 +664,30 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2)
   assert(img2 != NULL);
   assert(ImageValidPos(img1, x, y));
   // Insert your code here!
-  // int size2 = img2->width * img2->height;
-  // int match = 0;
-  // while(match != size2){
-  //   for (int i = 0; i <= img2->height; i++){ 
-  //     for (int j = 0; j <= img2->width; j++){
-  //       for (int f = 0; f <= img1->height; f++){
-  //         for (int g = 0; g <= img1->width; g++){
-  //           if (ImageGetPixel(img1, x + j, y + i) == ImageGetPixel(img2, j, i))
-  //           {
-  //             match++;
-  //           }
-  //     }}
-  //   }}
-  // }
+  int size2 = img2->width * img2->height;
+  int match = 0;
+  while(match != size2){
+    for (int i = 0; i <= img2->height; i++){ 
+      for (int j = 0; j <= img2->width; j++){
+        for (int f = 0; f <= img1->height; f++){
+          for (int g = 0; g <= img1->width; g++){
+            if (ImageGetPixel(img1, g, f) == ImageGetPixel(img2, j, i))
+            {
+              match++;
+            }
+            else
+            {
+              match = 0;
+            }
+          }
+        }
+      }
+    }
+    if(match == size2){
+      return 1;
+    }
+  }
+  return 0;
 }
 
 /// Locate a subimage inside another image.
