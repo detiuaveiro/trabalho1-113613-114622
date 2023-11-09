@@ -491,7 +491,7 @@ void ImageBrighten(Image img, double factor)
     }
     else if (img->pixel[i] * factor < img->maxval) // se o nivel de cinzento for menor que o maxval
     {
-      img->pixel[i] = img->pixel[i] * factor; // multiplica o nivel de cinzento pelo factor
+      img->pixel[i] = (int)(img->pixel[i] * factor + 0.5); // multiplica o nivel de cinzento pelo factor
     }
   }
 }
@@ -551,12 +551,12 @@ Image ImageMirror(Image img)
   int size = img->height * img->width;
 
   Image imgMirrored = ImageCreate(img->width, img->height, img->maxval); // criar nova imagem
-
-  for (int i = 0; i <= size; i++)
+  for (int i = 0; i < img->height;  i++)
   {
-    imgMirrored->pixel[i] = img->pixel[img->width - 1]; // considerar o pixel da nova imagem de posição i
-                                                        // e configurá-lo com o nivel de cinzento do pixel
-                                                        // da imagem original de posição (largura da imagem original - i)
+    for (int j = 0; j < img->width; j++)
+    {
+      ImageSetPixel(imgMirrored, img->width-j-1, i,  ImageGetPixel(img, j, i)); // configurar o pixel da nova imagem de posição (i, j)
+    }
   }
 
   return imgMirrored;
@@ -646,7 +646,7 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha)
       uint8 img1Pixel = ImageGetPixel(img1, x + j, y + i); 
       uint8 img2Pixel = ImageGetPixel(img2, j, i); 
 
-      int blended_pixel = (int)( alphaImg1 * img1Pixel + (alpha * img2Pixel));
+      int blended_pixel = (int)( alphaImg1 * img1Pixel + (alpha * img2Pixel) + 0.5);
 
       ImageSetPixel(img1, x + j, y + i, blended_pixel);
     }
