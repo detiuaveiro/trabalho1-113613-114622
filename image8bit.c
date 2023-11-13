@@ -459,7 +459,7 @@ void ImageThreshold(Image img, uint8 thr)
   assert(img != NULL);
   // Insert your code here!
   int size = img->width * img->height;
-  for (int i; i < size; i++)
+  for (int i = 0; i < size; i++)
   {
     if (img->pixel[i] < thr) // se o nivel de cinzento for menor que o threshold
     {
@@ -547,9 +547,6 @@ Image ImageMirror(Image img)
 { ///
   assert(img != NULL);
   // Insert your code here!
-
-  int size = img->height * img->width;
-
   Image imgMirrored = ImageCreate(img->width, img->height, img->maxval); // criar nova imagem
   for (int i = 0; i < img->height;  i++)
   {
@@ -669,25 +666,17 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2)
   while(match != size2){
     for (int i = 0; i <= img2->height; i++){ 
       for (int j = 0; j <= img2->width; j++){
-        for (int f = 0; f <= img1->height; f++){
-          for (int g = 0; g <= img1->width; g++){
-            if (ImageGetPixel(img1, g, f) == ImageGetPixel(img2, j, i))
-            {
-              match++;
-            }
-            else
-            {
-              match = 0;
-            }
+          if (ImageGetPixel(img1, x+j, y+i) == ImageGetPixel(img2, j, i)){
+            match++;
           }
-        }
-      }
+        } 
     }
+  }
     if(match == size2){
       return 1;
     }
-  }
   return 0;
+
 }
 
 /// Locate a subimage inside another image.
@@ -699,6 +688,23 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
   assert(img1 != NULL);
   assert(img2 != NULL);
   // Insert your code here!
+
+  for (int y = 0; y < img1->height - img2->height + 1; y++) {
+        for (int x = 0; x < img1->width - img2->width + 1; x++) {
+            if (ImageMatchSubImage(img1, x, y, img2)) {
+                // A match is found, set the position and return 1
+                if (px != NULL) {
+                    *px = x;
+                }
+                if (py != NULL) {
+                    *py = y;
+                }
+                return 1;
+            }
+        }
+    }
+    return 0;
+
 }
 
 /// Filtering
@@ -708,6 +714,35 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy)
-{ ///
+{ 
+  assert(img != NULL);
   // Insert your code here!
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+
+            int soma = 0;
+            int num = 0;
+
+            for (int j = -dy; j <= dy; j++) {
+                for (int i = -dx; i <= dx; i++) {
+                    int newX = x + i;
+                    int newY = y + j;
+
+                    int isnewXvalid = (newX >= 0) && (newX < img->width);
+                    int isnewYvalid = (newY >= 0) && (newY < img->height);
+
+                    if ( isnewXvalid && isnewYvalid) {
+                        soma += ImageGetPixel(img, newX, newY);
+                        num++;
+                    }
+                }
+            }
+
+            int media = (int)(soma / num + 0.5);  //calcular a media do nivel 
+                                                     //de cinzento dos pixeis
+            ImageSetPixel(img, x, y, media);
+
+      }
+    }
 }
+
