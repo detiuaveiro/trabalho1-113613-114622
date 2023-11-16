@@ -752,4 +752,5 @@ void ImageBlur(Image img, int dx, int dy) {
     }
   }
   free(imgBlurred);
+  //printf("pixmem: %ld\n", PIXMEM);
 }
