@@ -382,15 +382,13 @@ int ImageValidRect(Image img, int x, int y, int w, int h)
   assert(img != NULL); // img must be a valid image
   // Insert your code here!
 
-  int cond1 = 0 <= x && x < img->width;
-  int cond2 = 0 <= y && y < img->height;
-  int cond3 = 0 <= x + w && x + w < img->width;
-  int cond4 = 0 <= y + h && y + h < img->height;
+  int isXValid = 0 <= x && x < img->width;
+  int isYValid = 0 <= y && y < img->height;
+  int isXWValid = 0 <= x + w && x + w < img->width;
+  int isYHValid = 0 <= y + h && y + h < img->height;
 
-  int isValid = cond1 && cond2 && cond3 && cond4;
-
-  return isValid;
-}
+  return isXValid && isYValid && isXWValid && isYHValid;
+  }
 
 /// Pixel get & set operations
 
@@ -655,33 +653,26 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha)
 /// Compare an image to a subimage of a larger image.
 /// Returns 1 (true) if img2 matches subimage of img1 at pos (x, y).
 /// Returns 0, otherwise.
-int ImageMatchSubImage(Image img1, int x, int y, Image img2)
-{ ///
+int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
   assert(img1 != NULL);
   assert(img2 != NULL);
   assert(ImageValidPos(img1, x, y));
-  // Insert your code here!
-  int size2 = img2->width * img2->height;
+
   int match = 0;
-  while (match != size2)
-  {
-    for (int i = 0; i <= img2->height; i++)
-    {
-      for (int j = 0; j <= img2->width; j++)
-      {
-        if (ImageGetPixel(img1, x + j, y + i) == ImageGetPixel(img2, j, i))
-        {
-          match++;
-        }
+  int size2 = img2->width * img2->height;
+
+  for (int i = 0; i < img2->height; i++) {
+    for (int j = 0; j < img2->width; j++) {
+      if (ImageGetPixel(img1, x + j, y + i) != ImageGetPixel(img2, j, i)) {
+        return 0;  // Se uma diferença é encontrada, não há necessidade de continuar
       }
+      match++;
     }
   }
-  if (match == size2)
-  {
-    return 1;
-  }
-  return 0;
+
+  return (match == size2) ? 1 : 0;
 }
+
 
 /// Locate a subimage inside another image.
 /// Searches for img2 inside img1.
@@ -693,21 +684,20 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
   assert(img2 != NULL);
   // Insert your code here!
 
-  for (int y = 0; y < img1->height - img2->height + 1; y++)
+  int FinalHeight = img1->height - img2->height + 1;
+  int FinalWidth = img1->width - img2->width + 1;
+
+  for (int y = 0; y < FinalHeight; y++)
   {
-    for (int x = 0; x < img1->width - img2->width + 1; x++)
+    for (int x = 0; x < FinalWidth; x++)
     {
       if (ImageMatchSubImage(img1, x, y, img2))
       {
         // A match is found, set the position and return 1
-        if (px != NULL)
-        {
-          *px = x;
-        }
-        if (py != NULL)
-        {
-          *py = y;
-        }
+        if (px != NULL) *px = x;
+        
+        if (py != NULL) *py = y;
+        
         return 1;
       }
     }
@@ -721,6 +711,8 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
+
+
 
 void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
@@ -743,7 +735,7 @@ void ImageBlur(Image img, int dx, int dy) {
         }
       }
       int media = (int)(soma / num + 0.5);
-      ImageSetPixel(imgBlurred, x, y, media);
+       ImageSetPixel(imgBlurred, x, y, media);
     }
   }
   for (y = 0; y < img->height; y++) {
