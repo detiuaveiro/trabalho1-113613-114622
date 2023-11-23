@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "instrumentation.h"
+#include <string.h>
 
 // The data structure
 //
@@ -714,7 +715,7 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
 
 
 
-void ImageBlur(Image img, int dx, int dy) {
+void ImageBlur123(Image img, int dx, int dy) {
   assert(img != NULL);
   assert(dx >= 0);
   assert(dy >= 0);
@@ -741,8 +742,47 @@ void ImageBlur(Image img, int dx, int dy) {
   for (y = 0; y < img->height; y++) {
     for (x = 0; x < img->width; x++) {
       ImageSetPixel(img, x, y, ImageGetPixel(imgBlurred, x, y));
+      //ImageSetPixel(img, x, y, imgBlurred->pixel[y * img->width + x]);
     }
   }
   free(imgBlurred);
+  printf("pixmem: %ld\n", PIXMEM);
+}
+
+
+// esta ta com menos pixmems
+void ImageBlur(Image img, int dx, int dy) {
+  assert(img != NULL);
+  assert(dx >= 0);
+  assert(dy >= 0);
+
+  int size = img->width * img->height;
+  uint8 *blurredPixels = (uint8 *)malloc(size * sizeof(uint8));
+
+  for (int y = 0; y < img->height; y++) {
+    for (int x = 0; x < img->width; x++) {
+      double soma = 0.0;
+      double num = 0.0;
+  
+      for (int j = -dy; j <= dy; j++) {
+        for (int i = -dx; i <= dx; i++) {
+          int newX = x + i;
+          int newY = y + j;
+
+          if (ImageValidPos(img, newX, newY)) {
+            soma += ImageGetPixel(img, newX, newY);
+            num++;
+          }
+        }
+      }
+
+      int index = y * img->width + x;
+      blurredPixels[index] = (uint8)(soma / num + 0.5);
+    }
+  }
+
+  memcpy(img->pixel, blurredPixels, size * sizeof(uint8));
+  free(blurredPixels);
   //printf("pixmem: %ld\n", PIXMEM);
+
 }
