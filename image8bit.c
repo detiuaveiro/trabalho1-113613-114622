@@ -715,10 +715,11 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
 
 
 
-void ImageBlur123(Image img, int dx, int dy) {
+void ImageBlur11(Image img, int dx, int dy) {
   assert(img != NULL);
   assert(dx >= 0);
   assert(dy >= 0);
+  long int counter = 0;
 
   Image imgBlurred = ImageCreate(img->width, img->height, img->maxval);
   int x, y, i, j;
@@ -732,11 +733,13 @@ void ImageBlur123(Image img, int dx, int dy) {
           if (ImageValidPos(img, i, j)) {
             soma += (ImageGetPixel(img, i, j));
             num++;
+
+            counter++;
           }
         }
       }
       int media = (int)(soma / num + 0.5);
-       ImageSetPixel(imgBlurred, x, y, media);
+      ImageSetPixel(imgBlurred, x, y, media);
     }
   }
   for (y = 0; y < img->height; y++) {
@@ -747,6 +750,7 @@ void ImageBlur123(Image img, int dx, int dy) {
   }
   free(imgBlurred);
   printf("pixmem: %ld\n", PIXMEM);
+  printf("counter: %ld\n", counter);
 }
 
 
@@ -755,6 +759,8 @@ void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
   assert(dx >= 0);
   assert(dy >= 0);
+
+  long int counter = 0;
 
   int size = img->width * img->height;
   uint8 *blurredPixels = (uint8 *)malloc(size * sizeof(uint8));
@@ -765,32 +771,43 @@ void ImageBlur(Image img, int dx, int dy) {
       double numX = 0.0;
       double somaY = 0.0;
       double numY = 0.0;
+      double soma = 0.0;
+      double num = 0.0;
   
       for (int j = -dy; j <= dy; j++) {
         int newY = y + j;
         if (ImageValidPos(img, x, newY)) {
-            somaX += ImageGetPixel(img, x, newY);
-            numX++;
+            //somaX += ImageGetPixel(img, x, newY);
+            //numX++;
+            soma += ImageGetPixel(img, x, newY);
+            num++;
+
+            counter++;
           }
         }
       for (int i = -dx; i <= dx; i++) {
         int newX = x + i;
-          
-
         if (ImageValidPos(img, newX, y)) {
-            somaY += ImageGetPixel(img, newX, y);
-            numY++;
+            //somaY += ImageGetPixel(img, newX, y);
+            //numY++;
+            soma += ImageGetPixel(img, newX, y);
+            num++;
+
+            counter++;
           }
         }
       
-
+      soma -= ImageGetPixel(img, x, y);
+      num--;
       int index = y * img->width + x;
-      blurredPixels[index] = (uint8)((somaX + somaY) / (numX + numY) + 0.5);
+      //blurredPixels[index] = (uint8)((somaX + somaY) / (numX + numY) + 0.5);
+      blurredPixels[index] = (uint8)(int)(soma / num + 0.5);
     }
   }
 
   memcpy(img->pixel, blurredPixels, size * sizeof(uint8));
   free(blurredPixels);
   //printf("pixmem: %ld\n", PIXMEM);
+  printf("counter: %ld\n", counter);
 
 }
