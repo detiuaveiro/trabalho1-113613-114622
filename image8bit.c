@@ -761,23 +761,31 @@ void ImageBlur(Image img, int dx, int dy) {
 
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
-      double soma = 0.0;
-      double num = 0.0;
+      double somaX = 0.0;
+      double numX = 0.0;
+      double somaY = 0.0;
+      double numY = 0.0;
   
       for (int j = -dy; j <= dy; j++) {
-        for (int i = -dx; i <= dx; i++) {
-          int newX = x + i;
-          int newY = y + j;
-
-          if (ImageValidPos(img, newX, newY)) {
-            soma += ImageGetPixel(img, newX, newY);
-            num++;
+        int newY = y + j;
+        if (ImageValidPos(img, x, newY)) {
+            somaX += ImageGetPixel(img, x, newY);
+            numX++;
           }
         }
-      }
+      for (int i = -dx; i <= dx; i++) {
+        int newX = x + i;
+          
+
+        if (ImageValidPos(img, newX, y)) {
+            somaY += ImageGetPixel(img, newX, y);
+            numY++;
+          }
+        }
+      
 
       int index = y * img->width + x;
-      blurredPixels[index] = (uint8)(soma / num + 0.5);
+      blurredPixels[index] = (uint8)((somaX + somaY) / (numX + numY) + 0.5);
     }
   }
 
