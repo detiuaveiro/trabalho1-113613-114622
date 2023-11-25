@@ -641,12 +641,16 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha)
     for (int j = 0; j < img2->width; j++)
     { // e x (0 a largura de img2)
 
-      uint8 img1Pixel = ImageGetPixel(img1, x + j, y + i);
-      uint8 img2Pixel = ImageGetPixel(img2, j, i);
+      uint8 img1Pixel = ImageGetPixel(img1, x + j, y + i);      // obter o nivel de cinzento do pixel da imagem original
+                                                                // de posição (x + j, y + i)
+      uint8 img2Pixel = ImageGetPixel(img2, j, i);        // obter o nivel de cinzento do pixel da imagem img2
+                                                          // de posição (j, i)
 
-      int blended_pixel = (int)(alphaImg1 * img1Pixel + (alpha * img2Pixel) + 0.5);
+      int blended_pixel = (int)(alphaImg1 * img1Pixel + (alpha * img2Pixel) + 0.5); // calcular o nivel de cinzento do pixel
+                                                                                    // resultante da mistura das duas imagens
 
-      ImageSetPixel(img1, x + j, y + i, blended_pixel);
+      ImageSetPixel(img1, x + j, y + i, blended_pixel);   // configurar o pixel da imagem original de posição (x+j, y+i)
+                                                          // com o nivel de cinzento calculado na linha anterior
     }
   }
 }
@@ -660,18 +664,23 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
   assert(ImageValidPos(img1, x, y));
 
   int match = 0;
-  int size2 = img2->width * img2->height;
+  int size2 = img2->width * img2->height; // tamanho da imagem img2
 
-  for (int i = 0; i < img2->height; i++) {
-    for (int j = 0; j < img2->width; j++) {
-      if (ImageGetPixel(img1, x + j, y + i) != ImageGetPixel(img2, j, i)) {
-        return 0;  // Se uma diferença é encontrada, não há necessidade de continuar
+  for (int i = 0; i < img2->height; i++) 
+  { // percorrer valores de y (0 a altura de img2)
+    for (int j = 0; j < img2->width; j++) 
+    { // e x (0 a largura de img2) 
+      if (ImageGetPixel(img1, x + j, y + i) != ImageGetPixel(img2, j, i))
+      { // se o nivel de cinzento do pixel da imagem original de posição (x + j, y + i) for diferente         
+        // do nivel de cinzento do pixel da imagem img2 de posição (j, i) 
+        return 0; // Se uma diferença é encontrada, não há necessidade de continuar
       }
-      match++;
+      match++;  // se não houver diferença, incrementar o contador de pixeis iguais
     }
   }
 
-  return (match == size2) ? 1 : 0;
+  return (match == size2) ? 1 : 0; // se o contador de pixeis iguais for igual ao tamanho da imagem img2
+                                   // então as imagens são iguais, caso contrário, são diferentes
 }
 
 
@@ -679,29 +688,26 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
 /// Searches for img2 inside img1.
 /// If a match is found, returns 1 and matching position is set in vars (*px, *py).
 /// If no match is found, returns 0 and (*px, *py) are left untouched.
-int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
-{ ///
+int ImageLocateSubImage(Image img1, int *px, int *py, Image img2){ 
   assert(img1 != NULL);
   assert(img2 != NULL);
   // Insert your code here!
 
-  int FinalHeight = img1->height - img2->height + 1;
-  int FinalWidth = img1->width - img2->width + 1;
+  int FinalHeight = img1->height - img2->height + 1;   // Calcula a altura do espaço de busca
+  int FinalWidth = img1->width - img2->width + 1;      // Calcula a largura do espaço de busca
 
   for (int y = 0; y < FinalHeight; y++)
-  {
+  { // percorrer valores de y (0 a altura de img1 - altura de img2 + 1)
     for (int x = 0; x < FinalWidth; x++)
-    {
-      if (ImageMatchSubImage(img1, x, y, img2))
+    { // e x (0 a largura de img1 - largura de img2 + 1)
+      if (ImageMatchSubImage(img1, x, y, img2))    //verifica se a imagem img2 é igual à subimagem da imagem img1
       {
-        // A match is found, set the position and return 1
-        if (px != NULL) *px = x;
-        
+        if (px != NULL) *px = x;                  // se for igual, guarda as coordenadas x e y da imagem img1
         if (py != NULL) *py = y;
-        
-        return 1;
+        return 1;                                 // retorna 1 se encontrar uma subimagem igual
       }
     }
+
   }
   return 0;
 }
@@ -713,101 +719,45 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2)
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
 
-
-
-void ImageBlur11(Image img, int dx, int dy) {
-  assert(img != NULL);
-  assert(dx >= 0);
-  assert(dy >= 0);
-  long int counter = 0;
-
-  Image imgBlurred = ImageCreate(img->width, img->height, img->maxval);
-  int x, y, i, j;
-  for (y = 0; y < img->height; y++) {
-    for (x = 0; x < img->width; x++) {
-      double soma = 0.0;
-      double num = 0.0;
-
-      for (j = y - dy; j <= y + dy; j++) {
-        for (i = x - dx; i <= x + dx; i++) {
-          if (ImageValidPos(img, i, j)) {
-            soma += (ImageGetPixel(img, i, j));
-            num++;
-
-            counter++;
-          }
-        }
-      }
-      int media = (int)(soma / num + 0.5);
-      ImageSetPixel(imgBlurred, x, y, media);
-    }
-  }
-  for (y = 0; y < img->height; y++) {
-    for (x = 0; x < img->width; x++) {
-      ImageSetPixel(img, x, y, ImageGetPixel(imgBlurred, x, y));
-      //ImageSetPixel(img, x, y, imgBlurred->pixel[y * img->width + x]);
-    }
-  }
-  free(imgBlurred);
-  printf("pixmem: %ld\n", PIXMEM);
-  printf("counter: %ld\n", counter);
-}
-
-
-// esta ta com menos pixmems
 void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
   assert(dx >= 0);
   assert(dy >= 0);
 
-  long int counter = 0;
 
-  int size = img->width * img->height;
-  uint8 *blurredPixels = (uint8 *)malloc(size * sizeof(uint8));
+  int size = img->width * img->height;      // tamanho da imagem
+  uint8 *blurredPixels = (uint8 *)malloc(size * sizeof(uint8));     // array para guardar os pixeis da imagem borrada
 
-  for (int y = 0; y < img->height; y++) {
-    for (int x = 0; x < img->width; x++) {
-      double somaX = 0.0;
-      double numX = 0.0;
-      double somaY = 0.0;
-      double numY = 0.0;
-      double soma = 0.0;
-      double num = 0.0;
-  
-      for (int j = -dy; j <= dy; j++) {
-        int newY = y + j;
-        if (ImageValidPos(img, x, newY)) {
-            //somaX += ImageGetPixel(img, x, newY);
-            //numX++;
-            soma += ImageGetPixel(img, x, newY);
-            num++;
+  int x, y, i, j;
 
-            counter++;
+  for (y = 0; y < img->height; y++) 
+  {                                                  // percorrer valores de y (0 a altura de img)
+    for (x = 0; x < img->width; x++) 
+    {                                                // e de x (0 a largra de img)
+      double soma = 0.0, num = 0.0;
+
+      for (j = y - dy; j <= y + dy; j++) 
+      { // percorrer valores de y (y - dy a y + dy)
+        for (i = x - dx; i <= x + dx; i++) 
+        { // e de x (x - dx a x + dx)
+          if (ImageValidPos(img, i, j)) 
+          { // se a posição (i, j) for válida
+            soma += (ImageGetPixel(img, i, j));  // soma o nivel de cinzento do pixel à variavel soma
+            num++;                               // incrementa o contador de pixeis válidos
+
           }
         }
-      for (int i = -dx; i <= dx; i++) {
-        int newX = x + i;
-        if (ImageValidPos(img, newX, y)) {
-            //somaY += ImageGetPixel(img, newX, y);
-            //numY++;
-            soma += ImageGetPixel(img, newX, y);
-            num++;
+      }
 
-            counter++;
-          }
-        }
-      
-      soma -= ImageGetPixel(img, x, y);
-      num--;
-      int index = y * img->width + x;
-      //blurredPixels[index] = (uint8)((somaX + somaY) / (numX + numY) + 0.5);
-      blurredPixels[index] = (uint8)(int)(soma / num + 0.5);
+      int index = y * img->width + x;           // calcular o index da posição (x, y) da imagem
+
+      blurredPixels[index] = (uint8)(int)(soma / num + 0.5);  // calcular o nivel de cinzento do pixel resultante
+                                                               // da média dos pixeis e guardar no array
     }
   }
 
-  memcpy(img->pixel, blurredPixels, size * sizeof(uint8));
-  free(blurredPixels);
-  //printf("pixmem: %ld\n", PIXMEM);
-  printf("counter: %ld\n", counter);
+  memcpy(img->pixel, blurredPixels, size * sizeof(uint8));    // copiar os pixeis guardados no array 
+                                                              // para a imagem original nas posições corretas
+  free(blurredPixels);  // libertar a memória alocada para o array
 
 }
