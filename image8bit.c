@@ -723,6 +723,7 @@ void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
   assert(dx >= 0);
   assert(dy >= 0);
+  int counter = 0;
 
 
   int size = img->width * img->height;      // tamanho da imagem
@@ -755,6 +756,8 @@ void ImageBlur(Image img, int dx, int dy) {
                                                                // da média dos pixeis e guardar no array
     }
   }
+    printf("pixmem: %lu\n", PIXMEM);
+  printf("counter: %d\n", counter);
 
   memcpy(img->pixel, blurredPixels, size * sizeof(uint8));    // copiar os pixeis guardados no array 
                                                               // para a imagem original nas posições corretas
