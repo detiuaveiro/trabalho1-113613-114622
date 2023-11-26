@@ -670,7 +670,7 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
   { // percorrer valores de y (0 a altura de img2)
     for (int j = 0; j < img2->width; j++) 
     { // e x (0 a largura de img2) 
-      if (ImageGetPixel(img1, x + j, y + i) != ImageGetPixel(img2, j, i))
+      if (img2->pixel[i * img2->width + j] != img1->pixel[(y + i) * img1->width + (x + j)])
       { // se o nivel de cinzento do pixel da imagem original de posição (x + j, y + i) for diferente         
         // do nivel de cinzento do pixel da imagem img2 de posição (j, i) 
         return 0; // Se uma diferença é encontrada, não há necessidade de continuar
@@ -723,8 +723,6 @@ void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
   assert(dx >= 0);
   assert(dy >= 0);
-  int counter = 0;
-
 
   int size = img->width * img->height;      // tamanho da imagem
   uint8 *blurredPixels = (uint8 *)malloc(size * sizeof(uint8));     // array para guardar os pixeis da imagem borrada
@@ -756,8 +754,6 @@ void ImageBlur(Image img, int dx, int dy) {
                                                                // da média dos pixeis e guardar no array
     }
   }
-    printf("pixmem: %lu\n", PIXMEM);
-  printf("counter: %d\n", counter);
 
   memcpy(img->pixel, blurredPixels, size * sizeof(uint8));    // copiar os pixeis guardados no array 
                                                               // para a imagem original nas posições corretas
